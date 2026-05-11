@@ -1,5 +1,7 @@
 package main
 
+import "core:strconv"
+import "core:os"
 import "core:math"
 import "core:c"
 import "core:image"
@@ -7,14 +9,30 @@ import "core:log"
 import "core:math/rand"
 import stbi "vendor:stb/image"
 
-IMAGE_WIDTH :: 400
-IMAGE_HEIGHT :: 200
 IMAGE_NAME :: "output.png"
-SAMPLES :: 32
+
+Options :: struct {
+    width:   int,
+    height:  int,
+    samples: int,
+}
 
 main :: proc() {
     context.logger = log.create_console_logger()
-    pixels: []image.RGB_Pixel = make([]image.RGB_Pixel, IMAGE_WIDTH * IMAGE_HEIGHT)
+
+    width := strconv.parse_int(os.args[1]) or_else 400
+    height := strconv.parse_int(os.args[2]) or_else 200
+    samples := strconv.parse_int(os.args[3]) or_else 16
+
+    opt: Options = {
+        width,
+        height,
+        samples,
+    }
+
+    log.infof("Rendering image\n\tWidth: %d\n\tHeight: %d\n\tSamples: %d", opt.width, opt.height, opt.samples)
+
+    pixels: []image.RGB_Pixel = make([]image.RGB_Pixel, opt.width * opt.height)
 
     camera := Camera {
         lower_left_corner = Vec3{-2, -1, -1},
@@ -27,21 +45,22 @@ main :: proc() {
     append(&world.spheres, Sphere{center = Vec3{0, 0, -1}, radius = 0.5})
     append(&world.spheres, Sphere{center = Vec3{0, -100.5, -1}, radius = 100})
 
+    total_pixels := opt.width * opt.height
     i := 0
-    for y := IMAGE_HEIGHT - 1; y >= 0; y -= 1 {
-        for x := 0; x < IMAGE_WIDTH; x += 1 {
+    for y := opt.height - 1; y >= 0; y -= 1 {
+        for x := 0; x < opt.width; x += 1 {
             col: Vec3
 
-            for _ in 0..<SAMPLES {
-                u := (f32(x) + rand.float32()) / f32(IMAGE_WIDTH)
-                v := (f32(y) + rand.float32()) / f32(IMAGE_HEIGHT)
+            for _ in 0..<opt.samples {
+                u := (f32(x) + rand.float32()) / f32(opt.width)
+                v := (f32(y) + rand.float32()) / f32(opt.height)
                 
                 r := camera_get_ray(camera, u, v)
                 p := ray_point_at_parameter(r, 2)
                 col += color(r, world)
             }
 
-            col /= f32(SAMPLES)
+            col /= f32(opt.samples)
             col = Vec3{
                 math.sqrt_f32(col.r),
                 math.sqrt_f32(col.g),
@@ -53,7 +72,7 @@ main :: proc() {
         }
     }
 
-    img, ok := image.pixels_to_image(pixels[:], IMAGE_WIDTH, IMAGE_HEIGHT)
+    img, ok := image.pixels_to_image(pixels[:], opt.width, opt.height)
     if !ok {
         log.error("Failed to create image from pixels")
         return
