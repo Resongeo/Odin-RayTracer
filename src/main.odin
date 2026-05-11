@@ -1,14 +1,13 @@
 package main
 
-import "core:text/regex/virtual_machine"
+import "core:math"
 import "core:c"
-import "core:fmt"
 import "core:image"
 import "core:log"
 import stbi "vendor:stb/image"
 
-IMAGE_WIDTH :: 1600
-IMAGE_HEIGHT :: 800
+IMAGE_WIDTH :: 800
+IMAGE_HEIGHT :: 400
 IMAGE_NAME :: "output.png"
 
 main :: proc() {
@@ -19,6 +18,10 @@ main :: proc() {
     horizontal := Vec3{4, 0, 0}
     vertical := Vec3{0, 2, 0}
     origin := Vec3{0, 0, 0}
+
+    world: World
+    append(&world.spheres, Sphere{center = Vec3{0, 0, -1}, radius = 0.5})
+    append(&world.spheres, Sphere{center = Vec3{0, -100.5, -1}, radius = 100})
 
     i := 0
     for y := IMAGE_HEIGHT - 1; y >= 0; y -= 1 {
@@ -31,7 +34,10 @@ main :: proc() {
                 lower_left_corner + u * horizontal + v * vertical
             }
             
-            pixels[i] = vec3_to_rgb_pixel(color(r))
+            p := ray_point_at_parameter(r, 2)
+            col := color(r, world)
+
+            pixels[i] = vec3_to_rgb_pixel(col)
             i += 1
         }
     }
@@ -57,21 +63,17 @@ main :: proc() {
     }
 }
 
-hit_sphere :: proc(center: Vec3, radius: f32, r: Ray) -> bool {
-    oc := ray_origin(r) - center
-    a := vec3_dot(ray_direction(r), ray_direction(r))
-    b := 2 * vec3_dot(oc, ray_direction(r))
-    c := vec3_dot(oc, oc) - radius * radius
-    discriminant := b * b - 4 * a * c
+color :: proc(r: Ray, world: World) -> Vec3 {
+    hit: Hit_Record
 
-    return discriminant > 0
-}
-
-color :: proc(r: Ray) -> Vec3 {
-    if hit_sphere({0, 0, -1}, 0.5, r) {
-        return {0.8, 0.3, 0.3}
+    if world_hit(world, r, 0, math.F32_MAX, &hit) {
+        return 0.5*Vec3{
+            hit.normal.x + 1,
+            hit.normal.y + 1,
+            hit.normal.z + 1,
+        }
     }
-
+    
     unit_direction := vec3_unit_vec(ray_direction(r))
     t := 0.5 * (unit_direction.y + 1)
     return (1 - t) * Vec3{1, 1, 1} + t * Vec3{0.5, 0.7, 1.0}

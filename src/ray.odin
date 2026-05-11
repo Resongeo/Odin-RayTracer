@@ -14,5 +14,5 @@ ray_direction :: proc(r: Ray) -> Vec3 {
 }
 
 ray_point_at_parameter :: proc(r: Ray, t: f32) -> Vec3 {
-    return r.a + t * r.b
+    return r.a + t*r.b
 }
