@@ -7,10 +7,10 @@ import "core:log"
 import "core:math/rand"
 import stbi "vendor:stb/image"
 
-IMAGE_WIDTH :: 800
-IMAGE_HEIGHT :: 400
+IMAGE_WIDTH :: 400
+IMAGE_HEIGHT :: 200
 IMAGE_NAME :: "output.png"
-SAMPLES :: 16
+SAMPLES :: 32
 
 main :: proc() {
     context.logger = log.create_console_logger()
@@ -42,6 +42,11 @@ main :: proc() {
             }
 
             col /= f32(SAMPLES)
+            col = Vec3{
+                math.sqrt_f32(col.r),
+                math.sqrt_f32(col.g),
+                math.sqrt_f32(col.b),
+            }
 
             pixels[i] = vec3_to_rgb_pixel(col)
             i += 1
@@ -72,15 +77,26 @@ main :: proc() {
 color :: proc(r: Ray, world: World) -> Vec3 {
     hit: Hit_Record
 
-    if world_hit(world, r, 0, math.F32_MAX, &hit) {
-        return 0.5*Vec3{
-            hit.normal.x + 1,
-            hit.normal.y + 1,
-            hit.normal.z + 1,
-        }
+    if world_hit(world, r, 0.001, math.F32_MAX, &hit) {
+        target := hit.p + hit.normal + random_in_unit_sphere()
+        return 0.5*color(Ray{hit.p, target-hit.p}, world)
     }
     
     unit_direction := vec3_unit_vec(ray_direction(r))
     t := 0.5 * (unit_direction.y + 1)
     return (1 - t) * Vec3{1, 1, 1} + t * Vec3{0.5, 0.7, 1.0}
+}
+
+random_in_unit_sphere :: proc() -> Vec3 {
+    p: Vec3
+
+    for {
+        p = 2*Vec3{rand.float32(), rand.float32(), rand.float32()} - Vec3{1, 1, 1}
+
+        if vec3_squared_len(p) >= 1 {
+            break
+        }
+    }
+
+    return p
 }
