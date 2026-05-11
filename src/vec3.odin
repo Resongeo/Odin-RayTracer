@@ -6,21 +6,21 @@ import "core:math"
 Vec3 :: [3]f32
 
 vec3_len :: proc(v: Vec3) -> f32 {
-	return math.sqrt_f32(vec3_squared_len(v))
+    return math.sqrt_f32(vec3_squared_len(v))
 }
 
 vec3_squared_len :: proc(v: Vec3) -> f32 {
-	return v.x * v.x +
+    return v.x * v.x +
            v.y * v.y +
            v.z * v.z
 }
 
 vec3_unit_vec :: proc(v: Vec3) -> Vec3 {
-	return v / vec3_len(v)
+    return v / vec3_len(v)
 }
 
 vec3_dot :: proc(v1, v2: Vec3) -> f32 {
-	return v1.x * v2.x +
+    return v1.x * v2.x +
            v1.y * v2.y +
            v1.z * v2.z
 }
@@ -34,7 +34,7 @@ vec3_cross :: proc(v1, v2: Vec3) -> Vec3 {
 }
 
 vec3_to_rgb_pixel :: proc(v: Vec3) -> (pixel: image.RGB_Pixel) {
-	return {
+    return {
         u8(255 * v.r),
         u8(255 * v.g),
         u8(255 * v.b),
