@@ -43,40 +43,40 @@ main :: proc() {
 
     world: World
     append(&world.spheres, Sphere{
-        center = Vec3{0, 0, -1.1},
+        center = Vec3{0, 0, -1.6},
         radius = 0.5,
         material = new_material(Lambertian{
             albedo = Vec3{0.1, 0.2, 0.5}
         })
     })
     append(&world.spheres, Sphere{
-        center = Vec3{1, 0, -1},
+        center = Vec3{1, 0, -1.5},
         radius = 0.5,
         material = new_material(Metal{
-            albedo = Vec3{0.3, 0.3, 0.3},
-            roughness = 0.05,
+            albedo = Vec3{0.8, 0.3, 0.3},
+            roughness = 0.8,
         })
     })
     append(&world.spheres, Sphere{
-        center = Vec3{-1, 0, -1},
+        center = Vec3{-1, 0, -1.5},
         radius = 0.5,
         material = new_material(Metal{
             albedo = Vec3{0.8, 0.6, 0.2},
-            roughness = 0.45,
+            roughness = 0.25,
         })
     })
     append(&world.spheres, Sphere{
-        center = Vec3{.5, -.3, -.5},
+        center = Vec3{.4, -.2, -.8},
         radius = 0.2,
         material = new_material(Dielectric{
             ref_idx = 1.5
         })
     })
     append(&world.spheres, Sphere{
-        center = Vec3{0, -100.5, -1},
-        radius = 100,
+        center = Vec3{0, -1000.5, -1},
+        radius = 1000,
         material = new_material(Lambertian{
-            albedo = Vec3{0.65, 0.8, 0.8},
+            albedo = Vec3{0.5, 0.5, 0.5},
         })
     })
 

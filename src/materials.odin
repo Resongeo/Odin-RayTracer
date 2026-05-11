@@ -41,9 +41,7 @@ lambertian_scatter :: proc(m: Lambertian, r: Ray, hit: Hit_Record, attenuation: 
     target := hit.p + hit.normal + random_in_unit_sphere()
     scattered.a = hit.p
     scattered.b = target-hit.p
-    attenuation.r = m.albedo.r
-    attenuation.g = m.albedo.g
-    attenuation.b = m.albedo.b
+    attenuation^ = m.albedo
 
     return true;
 }
@@ -53,9 +51,7 @@ metal_scatter :: proc(m: Metal, r: Ray, hit: Hit_Record, attenuation: ^Vec3, sca
     reflected := reflect(vec3_unit_vec(ray_direction(r)), hit.normal)
     scattered.a = hit.p
     scattered.b = reflected + m.roughness*random_in_unit_sphere()
-    attenuation.r = m.albedo.r
-    attenuation.g = m.albedo.g
-    attenuation.b = m.albedo.b
+    attenuation^ = m.albedo
 
     return (vec3_dot(ray_direction(scattered^), hit.normal) > 0)
 }
@@ -67,9 +63,7 @@ dielectric_scatter :: proc(m: Dielectric, r: Ray, hit: Hit_Record, attenuation: 
     reflect_prob: f32
     cosine: f32
     reflected := reflect(ray_direction(r), hit.normal)
-    attenuation.r = 1
-    attenuation.g = 1
-    attenuation.b = 1
+    attenuation^ = Vec3{1, 1, 1}
 
     if vec3_dot(ray_direction(r), hit.normal) > 0 {
         outward_normal = -hit.normal
@@ -133,11 +127,7 @@ refract :: proc(v, n: Vec3, ni_over_nt: f32, refracted: ^Vec3) -> bool {
     discriminant := 1 - ni_over_nt*ni_over_nt*(1-dt*dt)
 
     if discriminant > 0 {
-        temp := ni_over_nt*(uv - n*dt) - n*math.sqrt_f32(discriminant)
-        refracted.r = temp.r
-        refracted.g = temp.g
-        refracted.b = temp.b
-
+        refracted^ = ni_over_nt*(uv - n*dt) - n*math.sqrt_f32(discriminant)
         return true
     }
 
