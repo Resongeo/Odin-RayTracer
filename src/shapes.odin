@@ -1,15 +1,18 @@
 package main
 
 import "core:math"
+
 Hit_Record :: struct {
-    t:      f32,
-    p:      Vec3,
-    normal: Vec3,
+    t:        f32,
+    p:        Vec3,
+    normal:   Vec3,
+    material: ^Material,
 }
 
 Sphere :: struct {
-    center: Vec3,
-    radius: f32,
+    center:   Vec3,
+    radius:   f32,
+    material: ^Material,
 }
 
 sphere_hit :: proc(s: Sphere, r: Ray, t_min, t_max: f32, hit: ^Hit_Record) -> bool {
@@ -25,6 +28,7 @@ sphere_hit :: proc(s: Sphere, r: Ray, t_min, t_max: f32, hit: ^Hit_Record) -> bo
             hit.t = temp
             hit.p = ray_point_at_parameter(r, hit.t)
             hit.normal = (hit.p - s.center) / s.radius
+            hit.material = s.material
 
             return true
         }
@@ -34,6 +38,7 @@ sphere_hit :: proc(s: Sphere, r: Ray, t_min, t_max: f32, hit: ^Hit_Record) -> bo
             hit.t = temp
             hit.p = ray_point_at_parameter(r, hit.t)
             hit.normal = (hit.p - s.center) / s.radius
+            hit.material = s.material
 
             return true
         }

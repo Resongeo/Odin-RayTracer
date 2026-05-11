@@ -16,6 +16,7 @@ world_hit :: proc(world: World, r: Ray, t_min, t_max: f32, hit: ^Hit_Record) -> 
             hit.t = temp_hit.t
             hit.p = temp_hit.p
             hit.normal = temp_hit.normal
+            hit.material = temp_hit.material
         }
     }
 

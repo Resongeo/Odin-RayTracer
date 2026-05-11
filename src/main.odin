@@ -42,8 +42,34 @@ main :: proc() {
     }
 
     world: World
-    append(&world.spheres, Sphere{center = Vec3{0, 0, -1}, radius = 0.5})
-    append(&world.spheres, Sphere{center = Vec3{0, -100.5, -1}, radius = 100})
+    append(&world.spheres, Sphere{
+        center = Vec3{0, 0, -1},
+        radius = 0.5,
+        material = new_material(Lambertian{
+            albedo = Vec3{0.8, 0.3, 0.3}
+        })
+    })
+    append(&world.spheres, Sphere{
+        center = Vec3{1, 0, -1},
+        radius = 0.5,
+        material = new_material(Lambertian{
+            albedo = Vec3{0.3, 0.8, 0.3}
+        })
+    })
+    append(&world.spheres, Sphere{
+        center = Vec3{-1, 0, -1},
+        radius = 0.5,
+        material = new_material(Metal{
+            albedo = Vec3{0.0, 0.3, 0.8}
+        })
+    })
+    append(&world.spheres, Sphere{
+        center = Vec3{0, -100.5, -1},
+        radius = 100,
+        material = new_material(Lambertian{
+            albedo = Vec3{0.8, 0.8, 0.8}
+        })
+    })
 
     total_pixels := opt.width * opt.height
     i := 0
@@ -57,7 +83,7 @@ main :: proc() {
                 
                 r := camera_get_ray(camera, u, v)
                 p := ray_point_at_parameter(r, 2)
-                col += color(r, world)
+                col += color(r, world, 0)
             }
 
             col /= f32(opt.samples)
@@ -93,12 +119,18 @@ main :: proc() {
     }
 }
 
-color :: proc(r: Ray, world: World) -> Vec3 {
+color :: proc(r: Ray, world: World, depth: int) -> Vec3 {
     hit: Hit_Record
 
     if world_hit(world, r, 0.001, math.F32_MAX, &hit) {
-        target := hit.p + hit.normal + random_in_unit_sphere()
-        return 0.5*color(Ray{hit.p, target-hit.p}, world)
+        scattered: Ray
+        attenuation: Vec3
+
+        if depth < 50 && material_scatter(hit.material^, r, hit, &attenuation, &scattered) {
+            return attenuation*color(scattered, world, depth+1)
+        }
+        
+        return Vec3{0, 0, 0}
     }
     
     unit_direction := vec3_unit_vec(ray_direction(r))
@@ -106,16 +138,3 @@ color :: proc(r: Ray, world: World) -> Vec3 {
     return (1 - t) * Vec3{1, 1, 1} + t * Vec3{0.5, 0.7, 1.0}
 }
 
-random_in_unit_sphere :: proc() -> Vec3 {
-    p: Vec3
-
-    for {
-        p = 2*Vec3{rand.float32(), rand.float32(), rand.float32()} - Vec3{1, 1, 1}
-
-        if vec3_squared_len(p) >= 1 {
-            break
-        }
-    }
-
-    return p
-}
