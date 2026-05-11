@@ -34,50 +34,13 @@ main :: proc() {
 
     pixels: []image.RGB_Pixel = make([]image.RGB_Pixel, opt.width * opt.height)
 
-    origin: Vec3 = {2, 1, 1}
-    look_at: Vec3 = {0, 0, -1.6}
-    focus_dist := vec3_len(origin - look_at)
-    aperture:f32 = 0.2
-    camera := new_camera(origin, look_at, 40, f32(opt.width)/f32(opt.height), aperture, focus_dist)
+    origin: Vec3 = {13, 2, 3}
+    look_at: Vec3 = {0, 0, 0}
+    focus_dist: f32 = 10
+    aperture:f32 = 0.1
+    camera := new_camera(origin, look_at, 20, f32(opt.width)/f32(opt.height), aperture, focus_dist)
 
-    world: World
-    append(&world.spheres, Sphere{
-        center = Vec3{0, 0, -1.6},
-        radius = 0.5,
-        material = new_material(Lambertian{
-            albedo = Vec3{0.1, 0.2, 0.5}
-        })
-    })
-    append(&world.spheres, Sphere{
-        center = Vec3{1, 0, -1.5},
-        radius = 0.5,
-        material = new_material(Metal{
-            albedo = Vec3{0.8, 0.3, 0.3},
-            roughness = 0.8,
-        })
-    })
-    append(&world.spheres, Sphere{
-        center = Vec3{-1, 0, -1.5},
-        radius = 0.5,
-        material = new_material(Metal{
-            albedo = Vec3{0.8, 0.6, 0.2},
-            roughness = 0.25,
-        })
-    })
-    append(&world.spheres, Sphere{
-        center = Vec3{.4, -.2, -.8},
-        radius = 0.2,
-        material = new_material(Dielectric{
-            ref_idx = 1.5
-        })
-    })
-    append(&world.spheres, Sphere{
-        center = Vec3{0, -1000.5, -1},
-        radius = 1000,
-        material = new_material(Lambertian{
-            albedo = Vec3{0.5, 0.5, 0.5},
-        })
-    })
+    world := new_random_world()
 
     total_pixels := opt.width * opt.height
     i := 0
