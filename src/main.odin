@@ -4,20 +4,24 @@ import "core:math"
 import "core:c"
 import "core:image"
 import "core:log"
+import "core:math/rand"
 import stbi "vendor:stb/image"
 
 IMAGE_WIDTH :: 800
 IMAGE_HEIGHT :: 400
 IMAGE_NAME :: "output.png"
+SAMPLES :: 16
 
 main :: proc() {
     context.logger = log.create_console_logger()
     pixels: []image.RGB_Pixel = make([]image.RGB_Pixel, IMAGE_WIDTH * IMAGE_HEIGHT)
 
-    lower_left_corner := Vec3{-2, -1, -1}
-    horizontal := Vec3{4, 0, 0}
-    vertical := Vec3{0, 2, 0}
-    origin := Vec3{0, 0, 0}
+    camera := Camera {
+        lower_left_corner = Vec3{-2, -1, -1},
+        horizontal = Vec3{4, 0, 0},
+        vertical = Vec3{0, 2, 0},
+        origin = Vec3{0, 0, 0},
+    }
 
     world: World
     append(&world.spheres, Sphere{center = Vec3{0, 0, -1}, radius = 0.5})
@@ -26,16 +30,18 @@ main :: proc() {
     i := 0
     for y := IMAGE_HEIGHT - 1; y >= 0; y -= 1 {
         for x := 0; x < IMAGE_WIDTH; x += 1 {
-            u := f32(x) / f32(IMAGE_WIDTH)
-            v := f32(y) / f32(IMAGE_HEIGHT)
+            col: Vec3
 
-            r := Ray{
-                origin,
-                lower_left_corner + u * horizontal + v * vertical
+            for _ in 0..<SAMPLES {
+                u := (f32(x) + rand.float32()) / f32(IMAGE_WIDTH)
+                v := (f32(y) + rand.float32()) / f32(IMAGE_HEIGHT)
+                
+                r := camera_get_ray(camera, u, v)
+                p := ray_point_at_parameter(r, 2)
+                col += color(r, world)
             }
-            
-            p := ray_point_at_parameter(r, 2)
-            col := color(r, world)
+
+            col /= f32(SAMPLES)
 
             pixels[i] = vec3_to_rgb_pixel(col)
             i += 1
