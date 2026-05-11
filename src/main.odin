@@ -34,12 +34,11 @@ main :: proc() {
 
     pixels: []image.RGB_Pixel = make([]image.RGB_Pixel, opt.width * opt.height)
 
-    camera := Camera {
-        lower_left_corner = Vec3{-2, -1, -1},
-        horizontal = Vec3{4, 0, 0},
-        vertical = Vec3{0, 2, 0},
-        origin = Vec3{0, 0, 0},
-    }
+    origin: Vec3 = {2, 1, 1}
+    look_at: Vec3 = {0, 0, -1.6}
+    focus_dist := vec3_len(origin - look_at)
+    aperture:f32 = 0.2
+    camera := new_camera(origin, look_at, 40, f32(opt.width)/f32(opt.height), aperture, focus_dist)
 
     world: World
     append(&world.spheres, Sphere{

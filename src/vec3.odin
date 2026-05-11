@@ -2,7 +2,6 @@ package main
 
 import "core:image"
 import "core:math"
-
 import "core:math/linalg/glsl"
 
 Vec3 :: [3]f32
