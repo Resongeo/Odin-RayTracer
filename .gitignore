@@ -2,7 +2,3 @@ build/
 
 *.bin
 *.exe
-
-*.png
-*.jpg
-*.jpeg
